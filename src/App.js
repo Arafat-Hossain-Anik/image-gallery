@@ -76,6 +76,9 @@ function App() {
 
   return (
     <div className='container'>
+      <div style={{ textAlign: "center", fontFamily: "'Source Code Pro', monospace" }}>
+        <h1>Welcome To Image Gallery</h1>
+      </div>
       <div className='header-container'>
         {
           selectedImages.length > 0 ?
