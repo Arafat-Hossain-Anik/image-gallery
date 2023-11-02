@@ -112,7 +112,7 @@ function App() {
               }}
               onClick={() => handleImageClick(index)}
               className={`image-container ${index === 0 ? 'first-image-div' : 'other-image-div'} ${selectedImages.includes(index) ? 'selected' : ''
-                } ${isDragging ? 'image-dragging' : ''}`}
+                } ${isDragging & index === 0 ? 'image-dragging' : ''}`}
             >
               <img className="image" src={image} alt={`${index}`} />
               <div className='overlay'></div>
