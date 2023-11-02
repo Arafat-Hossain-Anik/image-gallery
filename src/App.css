@@ -44,7 +44,7 @@ body {
   text-decoration: underline 2px;
 }
 
-.App {
+.main-app-container {
   display: grid;
   grid-template-columns: repeat(5, auto);
   gap: 10px;

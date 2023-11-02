@@ -92,7 +92,7 @@ function App() {
         }
       </div>
       <hr style={{ border: "2px solid white", borderRadius: '1px', margin: "10px 0" }} />
-      <div className="App">
+      <div className="main-app-container">
         {
           imagesList.map((image, index) => (
             <div key={index} draggable
