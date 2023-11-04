@@ -1,65 +1,50 @@
+import { useState } from 'react';
 import './App.css';
-import { useRef, useState } from 'react';
+import {
+  DndContext, closestCenter, MouseSensor, TouchSensor, DragOverlay, useSensor, useSensors
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSquareCheck, faSquare, faImage } from '@fortawesome/free-solid-svg-icons'
+import { faSquareCheck, faImage } from '@fortawesome/free-solid-svg-icons'
+import images from './images.json';
+import { SortablePhoto } from './SortablePhoto';
+import { Photo } from './Photo';
 
-const images = [
-  'images/image-1.webp',
-  'images/image-2.webp',
-  'images/image-3.webp',
-  'images/image-4.webp',
-  'images/image-5.webp',
-  'images/image-6.webp',
-  'images/image-7.webp',
-  'images/image-8.webp',
-  'images/image-9.webp',
-  'images/image-10.jpeg',
-  'images/image-11.jpeg'
-]
+
+
+
 function App() {
-  const [imagesList, setImagesList] = useState(images)
+  const [imagesList, setImagesList] = useState(images);
+  const [activeId, setActiveId] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 5, // Enable sort function when dragging 10px   💡 here!!!
+    },
+  })
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 5,
+      pointerMovementTolerance: 5,
+      // distance: 2,
+      tolerance: 1,
+    },
+  })
+  const sensors = useSensors(mouseSensor, touchSensor);
 
-  const dragImage = useRef(null)
-  const dragOverImage = useRef(null)
-  const handleSort = () => {
-    if (dragImage.current === null || dragOverImage.current === null || dragImage.current === dragOverImage.current) {
-      return;
-    }
-    let _imagesList = [...imagesList];
-
-    console.log(dragImage.current, dragOverImage.current);
-    const draggedContent = _imagesList[dragImage.current];
-    const draggedOverContent = _imagesList[dragOverImage.current];
-
-    // Swap the content
-    _imagesList[dragImage.current] = draggedOverContent;
-    _imagesList[dragOverImage.current] = draggedContent;
-
-    console.log(draggedContent);
-    console.log(draggedOverContent);
-    // _imagesList = [...imagesList, draggedOverContent]
-    console.log(_imagesList);
-    dragImage.current = dragOverImage.current;
-    // dragOverImage.current = null;
-    setImagesList(_imagesList);
-  };
-
-
-
-
-  const handleImageClick = (index) => {
-    if (selectedImages.includes(index)) {
-      const updatedSelection = selectedImages.filter((selected) => selected !== index);
+  const handleImageClick = (url) => {
+    console.log(url);
+    if (selectedImages.includes(url)) {
+      const updatedSelection = selectedImages.filter((selected) => selected !== url);
       setSelectedImages(updatedSelection);
     } else {
-      setSelectedImages([...selectedImages, index]);
+      setSelectedImages([...selectedImages, url]);
     }
   };
 
   const handleDeleteSelected = () => {
-    const imagesToKeep = imagesList.filter((_, index) => !selectedImages.includes(index));
+    const imagesToKeep = imagesList.filter((url) => !selectedImages.includes(url));
     setImagesList(imagesToKeep);
     setSelectedImages([]);
   };
@@ -74,8 +59,9 @@ function App() {
     }
   }
 
+
   return (
-    <div className='container'>
+    <div className="container">
       <div style={{ textAlign: "center", fontFamily: "'Source Code Pro', monospace" }}>
         <h1>Welcome To Image Gallery</h1>
       </div>
@@ -95,42 +81,65 @@ function App() {
         }
       </div>
       <hr style={{ border: "2px solid white", borderRadius: '1px', margin: "10px 0" }} />
-      <div className="main-app-container">
-        {
-          imagesList.map((image, index) => (
-            <div key={index} draggable
-              onDragStart={(e) => {
-                dragImage.current = index;
-                setIsDragging(true)
-              }}
-              onDragEnter={(e) => {
-                dragOverImage.current = index
-                handleSort();
-              }}
-              onDragEnd={() => {
-                setIsDragging(false);
-              }}
-              onClick={() => handleImageClick(index)}
-              className={`image-container ${index === 0 ? 'first-image-div' : 'other-image-div'} ${selectedImages.includes(index) ? 'selected' : ''
-                } ${isDragging & index === 0 ? 'image-dragging' : ''}`}
-            >
-              <img className="image" src={image} alt={`${index}`} />
-              <div className='overlay'></div>
-              <FontAwesomeIcon className='white-blank-box' icon={faSquare} />
-              <FontAwesomeIcon className='select-icon' icon={faSquareCheck} />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <SortableContext items={imagesList} strategy={rectSortingStrategy}>
+          <div className='all-image-container'>
+            {
+              imagesList.map((url, index) => (
+                <SortablePhoto key={url} url={url} index={index} selectedImages={selectedImages} onClick={() => handleImageClick(url)} />
+              ))
+            }
+            <div className='last-element'>
+              <input type="file" accept="image/*" id='file' onChange={handleImageChange} />
+              <label className='file-label' htmlFor="file">
+                <FontAwesomeIcon icon={faImage} />
+                Add Images
+              </label>
             </div>
-          ))
-        }
-        <div className='last-element'>
-          <input type="file" accept="image/*" id='file' onChange={handleImageChange} />
-          <label className='file-label' htmlFor="file">
-            <FontAwesomeIcon icon={faImage} />
-            Add Images
-          </label>
-        </div>
-      </div>
+          </div>
+        </SortableContext>
+
+        <DragOverlay adjustScale={true}>
+          {activeId ? (
+            <Photo url={activeId} activeId={activeId} selectedImages={selectedImages} index={imagesList.indexOf(activeId)} />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
+
+
+
+  function handleDragStart(event) {
+    setActiveId(event.active.id);
+  }
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setImagesList((image) => {
+        const oldIndex = image.indexOf(active.id);
+        const newIndex = image.indexOf(over.id);
+
+        return arrayMove(image, oldIndex, newIndex);
+      });
+    }
+
+    setActiveId(null);
+  }
+
+  function handleDragCancel() {
+    setActiveId(null);
+  }
+
+
 }
 
 export default App;

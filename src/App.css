@@ -10,7 +10,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: rgba(145, 244, 255, 0.49);
   background: -webkit-radial-gradient(circle, rgba(145, 244, 255, 0.49) 0%, rgba(7, 191, 233, 0.95) 100%);
   background: radial-gradient(circle, rgba(145, 244, 255, 0.49) 0%, rgba(7, 191, 233, 0.95) 100%);
@@ -20,10 +20,11 @@ body {
   box-shadow: 0px 0px 7px 1px rgb(0 0 0 / 23%);
   padding: 20px;
   margin: 20px;
+  max-width: 100%;
+  /* overflow: hidden; */
+  /* height: 100%; */
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.25);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
@@ -47,26 +48,19 @@ body {
   text-decoration: underline 2px;
 }
 
-.main-app-container {
+.all-image-container {
   display: grid;
-  grid-template-columns: repeat(5, auto);
-  gap: 10px;
-}
-
-.image {
-  height: 100%;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 10px;
   width: 100%;
-  object-fit: cover;
-  background: #fff;
-  border-radius: 8px;
 }
-
 
 .first-image-div {
   grid-row: span 2;
   grid-column: span 2;
   height: 305px;
   width: 305px;
+  overflow: hidden;
 }
 
 .other-image-div {
@@ -78,6 +72,8 @@ body {
 .image-container {
   position: relative;
   cursor: pointer;
+  height: 100%;
+  width: 100%;
 }
 
 .overlay {
@@ -137,10 +133,6 @@ body {
   background-color: #585858;
 }
 
-.last-element {
-  color: rgb(0, 0, 0);
-}
-
 #file {
   display: none;
 }
@@ -151,49 +143,43 @@ body {
   align-items: center;
   flex-direction: column;
   height: 150px;
+  width: 150px;
   border-radius: 8px;
   border: 1px dashed rgb(0, 0, 0);
 }
 
 /* Media query for tablet-sized screens */
 @media (max-width: 768px) {
-  .main-app-container {
+  .all-image-container {
     grid-template-columns: repeat(4, auto);
   }
 
   .first-image-div {
-    height: 205px;
-    width: 205px;
+    height: 210px !important;
+    width: 210px !important;
   }
 
-  .other-image-div {
-    height: 100px;
-    width: 100px;
-  }
-
+  .other-image-div,
   .file-label {
-    height: 100px;
+    height: 100px !important;
+    width: 100px !important;
   }
 }
 
 /* Media query for mobile devices */
 @media (max-width: 480px) {
-  .main-app-container {
+  .all-image-container {
     grid-template-columns: repeat(3, auto);
   }
 
   .first-image-div {
-    height: 170px;
-    width: 170px;
+    height: 223px !important;
+    width: 223px !important;
   }
 
-  .other-image-div {
-    height: 80px;
-    width: 80px;
-  }
-
+  .other-image-div,
   .file-label {
-    height: 80px;
-    font-size: 12px;
+    height: 100px !important;
+    width: 100px !important;
   }
 }
