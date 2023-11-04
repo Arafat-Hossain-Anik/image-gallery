@@ -18,6 +18,7 @@ export const Photo = forwardRef(({ url, index, faded, style, selectedImages, act
     ...style,
   };
   return (
+    // setting up every images with css style
     <div className={`image-container ${index === 0 ? 'first-image-div' : 'other-image-div'} ${selectedImages.includes(url) ? 'selected' : ''
       }`} ref={ref} style={inlineStyles} {...props}>
       {

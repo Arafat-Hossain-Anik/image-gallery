@@ -17,22 +17,21 @@ function App() {
   const [imagesList, setImagesList] = useState(images);
   const [activeId, setActiveId] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  // setting up mouse and touch Sensor
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      distance: 5, // Enable sort function when dragging 10px   💡 here!!!
+      distance: 10,
     },
   })
   const touchSensor = useSensor(TouchSensor, {
-    // Press delay of 250ms, with tolerance of 5px of movement
     activationConstraint: {
-      delay: 5,
-      pointerMovementTolerance: 5,
-      // distance: 2,
-      tolerance: 1,
+      delay: 100,
+      tolerance: 5,
     },
   })
   const sensors = useSensors(mouseSensor, touchSensor);
 
+  // image select on click function
   const handleImageClick = (url) => {
     console.log(url);
     if (selectedImages.includes(url)) {
@@ -42,12 +41,13 @@ function App() {
       setSelectedImages([...selectedImages, url]);
     }
   };
-
+  // delete selected Images
   const handleDeleteSelected = () => {
     const imagesToKeep = imagesList.filter((url) => !selectedImages.includes(url));
     setImagesList(imagesToKeep);
     setSelectedImages([]);
   };
+  // upload new image to current state
   const handleImageChange = (event) => {
     const file = event.target.files[0]
     if (file) {
@@ -62,6 +62,7 @@ function App() {
 
   return (
     <div className="container">
+      {/* header section starts */}
       <div style={{ textAlign: "center", fontFamily: "'Source Code Pro', monospace" }}>
         <h1>Welcome To Image Gallery</h1>
       </div>
@@ -81,6 +82,8 @@ function App() {
         }
       </div>
       <hr style={{ border: "2px solid white", borderRadius: '1px', margin: "10px 0" }} />
+      {/* header section ends */}
+      {/* main draggable content area starts */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -111,15 +114,16 @@ function App() {
           ) : null}
         </DragOverlay>
       </DndContext>
+      {/* main draggable content area ends */}
     </div>
   );
 
 
-
+  // getting image id onDragStart 
   function handleDragStart(event) {
     setActiveId(event.active.id);
   }
-
+  // rearranging the list of images after drop
   function handleDragEnd(event) {
     const { active, over } = event;
 
